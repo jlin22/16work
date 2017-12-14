@@ -17,17 +17,23 @@ int server_handshake(int *to_client) {
   printf("Enter text : ");
   fgets(line, sizeof(line), stdin);*/
   //printf("%s\n",line);
+  printf("Recieving data : ");
+  int down=open("private", O_RDONLY);
+  to_client =&down;
+  char line[256];
+  read(down, line, sizeof(line));
+  printf("%s\n",line);
   char * path = "wkp";
   mkfifo(path,0644);
   int up = open(path, O_WRONLY);
   /*write(up, line , sizeof(line));
     close(up);*/
   //to client is downstream
-  int down=(&to_client, O_RDONLY);
+  
   /*int value;
   read(down, &value, sizeof(int));
   close(down);*/
-  to_client =&down;
+
   
   return up;
 }
@@ -53,7 +59,7 @@ int client_handshake(int *to_server) {
   int down = open(path, O_WRONLY);
   write(down, line, sizeof(int));
   close(down);
-  int up=(&to_server, O_RDONLY);
+  int up=("wkp", O_RDONLY);
   /*int value;
   read(up, &value, sizeof(int));
   close(up);*/
