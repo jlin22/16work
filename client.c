@@ -13,6 +13,7 @@ int main() {
     fgets(msg, BUFFER_SIZE, stdin);
     //printf("%s", msg);
     write(to_server, msg, BUFFER_SIZE);
+    printf("writing to server\n");
     read(from_server, msg, BUFFER_SIZE);
     printf("recieve new text : %s \n", msg);
   }
