@@ -10,30 +10,21 @@
   returns the file descriptor for the upstream pipe.
   =========================*/
 int server_handshake(int *to_client) {
-  //c to s upstream
-  //s to c downstream
-  //wkp is upstream
-  /*char line[256];
-  printf("Enter text : ");
-  fgets(line, sizeof(line), stdin);*/
-  //printf("%s\n",line);
-  printf("Recieving data : ");
-  int down=open("private", O_RDONLY);
-  to_client =&down;
-  char line[256];
-  read(down, line, sizeof(line));
-  printf("%s\n",line);
-  char * path = "wkp";
-  mkfifo(path,0644);
-  int up = open(path, O_WRONLY);
-  /*write(up, line , sizeof(line));
-    close(up);*/
-  //to client is downstream
-  
-  /*int value;
-  read(down, &value, sizeof(int));
-  close(down);*/
 
+  mkfifo("wkp",0600);
+  int up = open("wkp", O_RDONLY, 0600);
+  printf("well known pipe created\n");
+  char line[HANDSHAKE_BUFFER_SIZE];
+  read(up, line, HANDSHAKE_BUFFER_SIZE);
+  printf("server received : %s\n", line);
+  remove("wkp");
+
+  int down = open(line, O_WRONLY);
+  *to_client = down;
+  write(down, ACK, strlen(ACK));
+  printf("server sent : %s\n", ACK); 
+  read(up, line, HANDSHAKE_BUFFER_SIZE);
+  printf("server handshake complete\n");
   
   return up;
 }
@@ -49,20 +40,18 @@ int server_handshake(int *to_client) {
   returns the file descriptor for the downstream pipe.
   =========================*/
 int client_handshake(int *to_server) {
-  //private is downstream
-  char line[256];
-  printf("Enter text : ");
-  fgets(line, sizeof(line), stdin);
-  //printf("%s\n", line);
-  char * path = "private";
-  mkfifo(path,0644);
-  int down = open(path, O_WRONLY);
-  write(down, line, sizeof(int));
-  close(down);
-  int up=("wkp", O_RDONLY);
-  /*int value;
-  read(up, &value, sizeof(int));
-  close(up);*/
-  to_server = &up;
+  int up = open("wkp", O_WRONLY, 0600);
+  char line[HANDSHAKE_BUFFER_SIZE];
+  sprintf(line, "%d", getpid());
+  char pipe[HANDSHAKE_BUFFER_SIZE];
+  strcpy(pipe,line);
+  mkfifo(line, 0600);
+  write(up, line, HANDSHAKE_BUFFER_SIZE);
+  int down = open(line, O_RDONLY, 0600);
+  read(down, line, HANDSHAKE_BUFFER_SIZE);
+  printf("client receive : %s\n",line);
+  remove("pipe");
+  write(up, ACK, HANDSHAKE_BUFFER_SIZE);
+  *to_server = up;
   return down;
 }
