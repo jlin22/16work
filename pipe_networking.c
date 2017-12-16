@@ -16,15 +16,15 @@ int server_handshake(int *to_client) {
   printf("well known pipe created\n");
   char line[HANDSHAKE_BUFFER_SIZE];
   read(up, line, HANDSHAKE_BUFFER_SIZE);
-  printf("server received : %s\n", line);
+  printf("server received message : %s\n", line);
   remove("wkp");
 
   int down = open(line, O_WRONLY);
   *to_client = down;
   write(down, ACK, strlen(ACK));
-  printf("server sent : %s\n", ACK); 
+  printf("server sent message : %s\n", ACK); 
   read(up, line, HANDSHAKE_BUFFER_SIZE);
-  printf("server handshake complete\n");
+  printf("server handshake complete : %s \n", line);
   
   return up;
 }
@@ -49,7 +49,7 @@ int client_handshake(int *to_server) {
   write(up, line, HANDSHAKE_BUFFER_SIZE);
   int down = open(line, O_RDONLY, 0600);
   read(down, line, HANDSHAKE_BUFFER_SIZE);
-  printf("client receive : %s\n",line);
+  printf("client received message : %s\n",line);
   remove("pipe");
   write(up, ACK, HANDSHAKE_BUFFER_SIZE);
   *to_server = up;
